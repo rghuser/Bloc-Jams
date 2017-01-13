@@ -27,6 +27,7 @@
          }
      });
  } 
+
  
 //var animatePoints = function() {
 // 
