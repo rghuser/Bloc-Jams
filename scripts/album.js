@@ -7,7 +7,7 @@ var createSongRow = function(songNumber, songName, songLength) {
         '<tr class="album-view-song-item">'
       + '  <td class="song-item-number" data-song-number="' + songNumber + '">' + songNumber + '</td>'
       + '  <td class="song-item-title">' + songName + '</td>'
-      + '  <td class="song-item-duration">' + songLength + '</td>'
+      + '  <td class="song-item-duration">' + filterTimeCode(songLength) + '</td>'
       + '</tr>'
       ;
  
@@ -87,7 +87,8 @@ var setSong = function(songNumber) {
          formats: [ 'mp3' ],
          preload: true
      });
-	setVolume(currentVolume);
+	// currentVolume
+	setVolume(0);
  };
 
  var seek = function(time) {
@@ -126,15 +127,47 @@ var setCurrentAlbum = function(album) {
      }
  };
 
+var setCurrentTimeInPlayerBar = function(currentTime) {
+     var $currentTimeElement = $('.seek-control .current-time');
+     $currentTimeElement.text(currentTime); 
+ };
+ 
+ var setTotalTimeInPlayerBar = function(totalTime) { 
+     var $totalTimeElement = $('.seek-control .total-time');
+     $totalTimeElement.text(totalTime); 
+ };
+ 
+ var filterTimeCode = function(timeInSeconds) {
+	 console.log("filterTimeCode", "timeInSeconds", timeInSeconds);
+     var seconds = Number.parseFloat(timeInSeconds);
+	 console.log("seconds", seconds);
+     var wholeSeconds = Math.floor(seconds);
+	 console.log("wholeSeconds", wholeSeconds);
+     var minutes = Math.floor(wholeSeconds / 60);
+	 console.log("minutes", minutes);
+     
+	 var remainingSeconds = wholeSeconds % 60;
+     var output = minutes + ':';
+     
+     if (remainingSeconds < 10) {
+         output += '0';   
+     }
+     
+     output += remainingSeconds;
+     return output;
+ };
+
  var updateSeekBarWhileSongPlays = function() {
      if (currentSoundFile) {
          // #10
          currentSoundFile.bind('timeupdate', function(event) {
              // #11
-             var seekBarFillRatio = this.getTime() / this.getDuration();
-             var $seekBar = $('.seek-control .seek-bar');
- 
-             updateSeekPercentage($seekBar, seekBarFillRatio);
+              var currentTime = this.getTime();
+              var songLength = this.getDuration();
+              var seekBarFillRatio = currentTime / songLength;
+              var $seekBar = $('.seek-control .seek-bar');
+              updateSeekPercentage($seekBar, seekBarFillRatio);
+			  setCurrentTimeInPlayerBar(filterTimeCode(currentTime));
          });
      }
  }; 
@@ -180,7 +213,6 @@ var updateSeekPercentage = function($seekBar, seekBarFillRatio) {
              var offsetX = event.pageX - $seekBar.offset().left;
              var barWidth = $seekBar.width();
              var seekBarFillRatio = offsetX / barWidth;
-			 
 			 if ($seekBar.parent().attr('class') == 'seek-control') {
                 seek(seekBarFillRatio * currentSoundFile.getDuration());   
             } else {
@@ -204,6 +236,8 @@ var updatePlayerBarSong = function() {
     $('.currently-playing .artist-song-mobile').text(currentSongFromAlbum.title + " - " + currentAlbum.artist);
 	
     $('.main-controls .play-pause').html(playerBarPauseButton);
+	setTotalTimeInPlayerBar(filterTimeCode(currentSongFromAlbum.duration));
+	
 };
  
  var trackIndex = function(album, song) {
@@ -316,6 +350,35 @@ var togglePlayFromPlayerbar = function() {
       $nextButton.click(nextSong);
 	  $playPauseButton.click(togglePlayFromPlayerbar);
  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // // Another Example Album 3
 // var albumBeyonce = {
