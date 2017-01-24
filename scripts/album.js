@@ -88,7 +88,7 @@ var setSong = function(songNumber) {
          preload: true
      });
 	// currentVolume
-	setVolume(0);
+	setVolume(currentVolume);
  };
 
  var seek = function(time) {
